@@ -9,32 +9,31 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """
-        Returns a dictionary of models currently in storage.
-        Optionally, returns instances of a specific class if a class is provided.
-        """
+        """Returns a dictionary of models currently in storage, filtered by class if provided."""
         if cls:
-            cls_name = cls.__name__ if type(cls) == type else cls
-            return {key: val for key, val in FileStorage.__objects.items() if key.startswith(cls_name)}
+            class_name = cls.__name__ if type(cls) == type else cls
+            filtered = {k: v for k, v in FileStorage.__objects.items() if k.split('.')[0] == class_name}
+            return filtered
         return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        key = f"{obj.__class__.__name__}.{obj.id}"
-        self.__objects[key] = obj
+        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
         """Saves storage dictionary to file"""
         with open(FileStorage.__file_path, 'w') as f:
-            temp = {key: val.to_dict() for key, val in FileStorage.__objects.items()}
+            temp = {}
+            for key, val in self.all().items():
+                temp[key] = val.to_dict()
             json.dump(temp, f)
 
     def delete(self, obj=None):
-        """Deletes obj from __objects if it’s inside"""
+        """Deletes obj from __objects if it’s inside, if obj is equal to None, do nothing."""
         if obj:
-            key = f"{obj.__class__.__name__}.{obj.id}"
-            if key in self.__objects:
-                del self.__objects[key]
+            obj_key = "{}.{}".format(type(obj).__name__, obj.id)
+            if obj_key in FileStorage.__objects:
+                del FileStorage.__objects[obj_key]
 
     def reload(self):
         """Loads storage dictionary from file"""
@@ -47,16 +46,17 @@ class FileStorage:
         from models.review import Review
 
         classes = {
-            'BaseModel': BaseModel, 'User': User, 'Place': Place,
-            'State': State, 'City': City, 'Amenity': Amenity,
-            'Review': Review
-        }
+                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'State': State, 'City': City, 'Amenity': Amenity,
+                    'Review': Review
+                  }
         try:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
-                for key, val in temp.items():
-                    cls_name = val['__class__']
-                    if cls_name in classes:
-                        self.__objects[key] = classes[cls_name](**val)
+            for key, val in temp.items():
+                cls_name = val['__class__']
+                if cls_name in classes:
+                    self.all()[key] = classes[cls_name](**val)
         except FileNotFoundError:
             pass
+
