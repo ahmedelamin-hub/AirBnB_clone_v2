@@ -113,42 +113,30 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, arg):
-    """Create an object of any class with optional attributes."""
-    args = arg.split()
-    if len(args) == 0:
-        print("** class name missing **")
-        return
-    class_name = args[0]
-    if class_name not in self.classes:
-        print("** class doesn't exist **")
-        return
-
-    new_instance = self.classes[class_name]()
-    for param in args[1:]:
-        key_value = param.split('=')
-        if len(key_value) == 2:
-            key, value = key_value
-            value = self._parse_value(value)
-            if value is not None:
-                setattr(new_instance, key, value)
-
-    storage.new(new_instance)
-    storage.save()
-    print(new_instance.id)
-
-
-def _parse_value(self, value):
-    """Parses the value string to return a correctly typed attribute."""
-    if '"' in value:
-        return value.strip('"').replace('_', ' ').replace('\\"', '"')
-    try:
-        if '.' in value:
-            return float(value)
-        return int(value)
-    except ValueError:
-        return None
-
+    
+    def do_create(self, args):
+        """ Create an object of any class"""
+        try:
+            if not args:
+                raise SyntaxError()
+            split1 = args.split(' ')
+            new_instance = eval('{}()'.format(split1[0]))
+            params = split1[1:]
+            for param in params:
+                k, v = param.split('=')
+                try:
+                    attribute = HBNBCommand.verify_attribute(v)
+                except:
+                    continue
+                if not attribute:
+                    continue
+                setattr(new_instance, k, attribute)
+            new_instance.save()
+            print(new_instance.id)
+        except SyntaxError:
+            print("** class name missing **")
+        except NameError as e:
+            print("** class doesn't exist **") 
 
 
     def help_create(self):
