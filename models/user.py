@@ -9,7 +9,5 @@ class User(BaseModel, Base):
     __tablename__ = 'users'
     email = Column(String(128), nullable=False)
     password = Column(String(128), nullable=False)
-    first_name = Column(String(128))
-    last_name = Column(String(128))
-    places = relationship("Place", back_populates="user", cascade="all, delete")
-    reviews = relationship("Review", back_populates="user", cascade="all, delete")
+    first_name = Column(String(128), nullable=True)
+    last_name = Column(String(128), nullable=True)
