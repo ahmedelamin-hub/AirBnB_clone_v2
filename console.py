@@ -113,24 +113,41 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        for param in args[1:]:
-            key_value = param.split('=')
-            if len(key_value) != 2:
-                continue
-            key, value = key_value
-            try:
-                if value.startswith("\""):
-                    value = value.strip("\"")
+    def do_create(self, arg):
+    """Create an object of any class with optional attributes."""
+    args = arg.split()
+    if len(args) == 0:
+        print("** class name missing **")
+        return
+    class_name = args[0]
+    if class_name not in self.classes:
+        print("** class doesn't exist **")
+        return
 
+    new_instance = self.classes[class_name]()
+    for param in args[1:]:
+        key_value = param.split('=')
+        if len(key_value) == 2:
+            key, value = key_value
+            value = self._parse_value(value)
+            if value is not None:
+                setattr(new_instance, key, value)
+
+    storage.new(new_instance)
+    storage.save()
+    print(new_instance.id)
+
+
+def _parse_value(self, value):
+    """Parses the value string to return a correctly typed attribute."""
+    if '"' in value:
+        return value.strip('"').replace('_', ' ').replace('\\"', '"')
+    try:
+        if '.' in value:
+            return float(value)
+        return int(value)
+    except ValueError:
+        return None
 
 
 
