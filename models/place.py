@@ -1,8 +1,18 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Table, Column, String, Integer, Float, ForeignKey, MetaData
 from sqlalchemy.orm import relationship
+
+
+# Define the metadata instance
+metadata = Base.metadata
+
+# Association Table for Many-to-Many relationship between Place and Amenity
+place_amenity = Table('place_amenity', metadata,
+                      Column('place_id', String(60), ForeignKey('places.id'), primary_key=True, nullable=False),
+                      Column('amenity_id', String(60), ForeignKey('amenities.id'), primary_key=True, nullable=False)
+                      )
 
 
 class Place(BaseModel, Base):
@@ -20,3 +30,16 @@ class Place(BaseModel, Base):
     user = relationship("User", back_populates="places")
     city = relationship("City", back_populates="places")
     reviews = relationship("Review", back_populates="place", cascade="all, delete")
+    amenities = relationship("Amenity", secondary=place_amenity, back_populates="place_amenities", viewonly=False)
+
+    @property
+    def amenities(self):
+        """Get list of Amenity instances from amenity_ids."""
+        return [amenity for amenity in self.amenity_ids]
+
+    @amenities.setter
+    def amenities(self, obj):
+        """If obj is an Amenity, adds its ID to amenity_ids."""
+        if isinstance(obj, Amenity):
+            if obj.id not in self.amenity_ids:
+                self.amenity_ids.append(obj.id)
