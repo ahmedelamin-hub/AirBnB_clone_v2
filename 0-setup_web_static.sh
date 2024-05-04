@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# This script sets up web servers for the deployment of web_static.
+# This servers for the deployment of web_static.
 
-# Install Nginx if it is not already installed
+# Installready installed
 sudo apt-get update
 sudo apt-get install -y nginx
 
@@ -20,14 +20,14 @@ echo "<html>
 # Create a symbolic link
 sudo ln -sf /data/web_static/releases/test /data/web_static/current
 
-# Give ownership of the /data/ directory to the ubuntu user and group
+# Give ownership of tntu user and group
 sudo chown -R ubuntu:ubuntu /data/
 
-# Update the Nginx configuration to serve the content
+# Update configuration to serve the content
 config="\n\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n"
 sudo sed -i "/^http {/a $config" /etc/nginx/nginx.conf
 
-# Restart Nginx to apply the configuration changes
+# Restart Nginx figuration changes
 sudo systemctl restart nginx
 
 # Exit successfully
