@@ -1,23 +1,20 @@
 #!/usr/bin/python3
 """
-Fabric script that creates and distributes an archive to your web servers.
-This script combines the functionalities of packing web static files into an archive
-and deploying that archive to specified servers.
-
-Usage: fab -f 3-deploy_web_static.py deploy -i my_ssh_private_key -u ubuntu
+Fabric script that creates archieve ==distributes
 """
 
 from fabric.api import env, local, put, run
 from datetime import datetime
 import os
 
-env.hosts = ['35.153.93.185', '35.153.255.51']  # Example IP addresses
+env.hosts = ['35.153.93.185', '35.153.255.51']
+
 
 def do_pack():
     """
-    Packs all files in the 'web_static' directory into a .tgz archive.
-    The archive is stored in the 'versions' folder with a timestamp in its name.
-    Returns the path to the archive if successful, None otherwise.
+    Packs all files ctory into a .tgz archive.
+    The archive in the 'versions' folder wit
+    Returns the path if ok
     """
     try:
         local("mkdir -p versions")
@@ -28,11 +25,12 @@ def do_pack():
     except Exception as e:
         return None
 
+
 def do_deploy(archive_path):
     """
-    Deploys the archive to the web servers.
-    Steps include uploading, uncompressing, and setting up the web directory.
-    Returns True if all operations succeed, False otherwise.
+    Deploys th servers.
+    Steps include uploadinghe web directory.
+    Returns operations succeed, False otherwise.
     """
     if not os.path.exists(archive_path):
         return False
@@ -55,11 +53,12 @@ def do_deploy(archive_path):
     except Exception as e:
         return False
 
+
 def deploy():
     """
-    Full deployment routine: packs and deploys web static files.
-    Calls do_pack() to create an archive and do_deploy() to distribute it.
-    Returns the result of the deployment process.
+    Full tatic files.
+    Calls do_pack() to distribute it.
+    Returns the resul
     """
     archive_path = do_pack()
     if archive_path is None:
