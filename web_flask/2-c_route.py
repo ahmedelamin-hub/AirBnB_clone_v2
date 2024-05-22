@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-A Flask web application that displays different messages
+A simple Flask web application that displays different messages
 """
 
 from flask import Flask
@@ -23,6 +23,16 @@ def hbnb():
     Route to display 'HBNB' at the /hbnb URL.
     """
     return "HBNB"
+
+
+@app.route('/c/<text>', strict_slashes=False)
+def c_text(text):
+    """
+    Route to display 'C ' followed by the value
+    Replaces underscores in text with spaces.
+    """
+    text = text.replace('_', ' ')
+    return f"C {text}"
 
 
 if __name__ == "__main__":
